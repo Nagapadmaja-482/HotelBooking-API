@@ -3,6 +3,7 @@ from app.database import init_db
 from app.routes import user, hotel, booking , room
 
 app = FastAPI()
+app.include_router(hotel.router)
 
 @app.on_event("startup")
 async def on_startup():

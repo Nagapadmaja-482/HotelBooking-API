@@ -35,5 +35,5 @@ async def login(user_data: UserLogin):
     user = await User.find_one(User.email == user_data.email)
     if not user or not verify_password(user_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Invalid credentials")
-    token = create_access_token({"sub": user.email})
+    token = create_access_token({"email": user.email})
     return {"access_token": token, "token_type": "bearer","payload": {"sub": user.email}}
