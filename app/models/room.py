@@ -1,6 +1,9 @@
 from bson import ObjectId
 from pydantic_core import core_schema
 from typing import Any
+from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
+from pydantic.json_schema import JsonSchemaValue
+
 
 class PyObjectId(ObjectId):
     @classmethod
@@ -13,11 +16,18 @@ class PyObjectId(ObjectId):
             raise ValueError(f"Invalid ObjectId: {v}")
 
         # ✅ Only pass the validator function
-        return core_schema.no_info_plain_validator_function(validate)
+        return core_schema.no_info_plain_validator_function(
+            validate,
+             serialization=core_schema.plain_serializer_function_ser_schema(
+                lambda v: str(v), when_used="always"
+            )
+        )
 
     @classmethod
-    def __get_pydantic_json_schema__(cls, core_schema: core_schema.CoreSchema, handler: Any) -> dict:
+    def __get_pydantic_json_schema__(cls, schema: core_schema.CoreSchema, handler:GetJsonSchemaHandler ) -> JsonSchemaValue:
         return {"type": "string", "example": "650c7ab7e6e45f07cc3b203c"}
+
+
 from beanie import Document
 from bson import ObjectId
 
