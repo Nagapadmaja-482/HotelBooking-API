@@ -2,7 +2,7 @@
 
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
-from app.models.room import Room
+from app.models.room import Room,RoomUpdate
 from app.auth.auth import get_current_user
 from app.models.user import User
 from bson import ObjectId
@@ -32,15 +32,18 @@ async def get_room(room_id: str):
 
 # Update room (Hotelier only)
 @router.put("/{room_id}")
-async def update_room(room_id: str, updated_room: Room, user: User = Depends(get_current_user)):
+async def update_room(
+    room_id: str,
+    updated_room: RoomUpdate, user: User = Depends(get_current_user)):
     if user.role != "hotelier":
         raise HTTPException(status_code=403, detail="Not authorized")
     room = await Room.get(ObjectId(room_id))
     if not room:
         raise HTTPException(status_code=404, detail="Room not found")
-    room.room_type = updated_room.room_type
-    room.price = updated_room.price
-    room.available_count = updated_room.available_count
+    update_data = updated_room.dict(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(room, field, value)
+
     await room.save()
     return {"message": "Room updated"}
 

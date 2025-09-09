@@ -3,6 +3,8 @@ from pydantic_core import core_schema
 from typing import Any
 from pydantic import GetCoreSchemaHandler, GetJsonSchemaHandler
 from pydantic.json_schema import JsonSchemaValue
+from pydantic import BaseModel
+from typing import Optional
 
 
 class PyObjectId(ObjectId):
@@ -45,3 +47,7 @@ class Room(Document):
 
     class Settings:
         name = "rooms"
+class RoomUpdate(BaseModel):
+    room_type: Optional[str] = None
+    price: Optional[float] = None
+    available_count: Optional[int] = None
