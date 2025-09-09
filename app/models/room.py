@@ -5,17 +5,15 @@ from typing import Any
 class PyObjectId(ObjectId):
     @classmethod
     def __get_pydantic_core_schema__(cls, _source_type: Any, _handler: Any) -> core_schema.CoreSchema:
-        def validate(v: Any, _info: core_schema.ValidationInfo) -> ObjectId:
+        def validate(v: Any,) -> ObjectId:
             if isinstance(v, ObjectId):
                 return v
             if isinstance(v, str) and ObjectId.is_valid(v):
                 return ObjectId(v)
             raise ValueError(f"Invalid ObjectId: {v}")
 
-        return core_schema.no_info_validator_function(
-            validate,
-            core_schema.any_schema()
-        )
+        # ✅ Only pass the validator function
+        return core_schema.no_info_plain_validator_function(validate)
 
     @classmethod
     def __get_pydantic_json_schema__(cls, core_schema: core_schema.CoreSchema, handler: Any) -> dict:
@@ -32,8 +30,8 @@ class Room(Document):
     price: float
     available_count: int
     is_available:bool
-    model_config = {arbitrary_types_allowed=True}
-
+    model_config = {
+    "arbitrary_types_allowed": True}
 
     class Settings:
         name = "rooms"
